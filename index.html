@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+
+
+  <style>
+  	h2{
+  		text-align: center;
+  	}
+
+  	   }
+  </style>
+
+  <script type="text/javascript">
+      function draw(data) {
+
+          "use strict";
+          var margin = 75,
+              width = 1280 - margin,
+              height = 800 - margin;
+
+		  d3.select("body")
+		  	.append("h2")
+		  	.text("Baseball Player Performance by Height");
+
+
+          var svg = d3.select("body")
+            .append("svg")
+              .attr("width", width + margin)
+              .attr("height", height + margin)
+            .append('g')
+                .attr('class','chart');
+
+      /*
+        Dimple.js Chart construction code
+      */
+
+          var myChart = new dimple.chart(svg, data);
+          var x = myChart.addMeasureAxis("x", "avg");
+          x.tickFormat = "%";
+          x.overrideMax = 0.32;
+		  x.overrideMin = 0.2;
+		  x.title = "Average of Baseball players";
+          var y1 = myChart.addMeasureAxis("y", "height");
+          y1.overrideMax = 80;
+          y1.overrideMin = 66;
+		  y1.title = "Height of Baseball players";
+
+          var z = myChart.addMeasureAxis("z", "HR");
+          myChart.addSeries(["name", "handedness"], dimple.plot.bubble);
+		  var myLegend = myChart.addLegend(280, 10, 380, 20, "left");
+
+		  myChart.draw();
+
+
+	/*
+	Mike Brown, Mel Stottlemyre and Jim Wright seem to have entered details in another metric scale
+
+	*/
+
+
+		  d3.select("body")
+		  	.append("h2")
+		  	.text("Baseball Player Performance by Weight");
+
+
+		  var svg1 = d3.select("body")
+		  		              .append("svg")
+		  		                .attr("width", width + margin)
+		  		                .attr("height", height + margin)
+		  		              .append('g')
+                .attr('class','chart');
+
+          var myChart1 = new dimple.chart(svg1, data);
+		  var x = myChart1.addMeasureAxis("x", "avg");
+		  x.tickFormat = "%";
+		  x.overrideMax = 0.32;
+		  x.overrideMin = 0.2;
+		  x.title = "Average of Baseball players";
+		  var y2 = myChart1.addMeasureAxis("y", "weight");
+		  y2.overrideMax = 250;
+		  y2.overrideMin = 140;
+		  y2.title = "Weight of Baseball players";
+		  var z = myChart1.addMeasureAxis("z", "HR");
+		  myChart1.addSeries(["name", "handedness"], dimple.plot.bubble);
+
+
+		  myChart1.draw();
+
+
+		  myChart.legends = [];
+
+		  var filterValues = dimple.getUniqueValues(data, "handedness");
+
+		  myLegend.shapes.selectAll("rect")
+		  	.on("click", function (e) {
+		  		var hide = false;
+            	var newFilters = [];
+
+            	filterValues.forEach(function (f) {
+				              if (f === e.aggField.slice(-1)[0]) {
+				                hide = true;
+				              } else {
+				                newFilters.push(f);
+				              }
+            	});
+
+
+            if (hide) {
+			              d3.select(this).style("opacity", 0.2);
+			          }
+			 else
+			          {
+			              newFilters.push(e.aggField.slice(-1)[0]);
+			              d3.select(this).style("opacity", 0.8);
+            			}
+
+
+            filterValues = newFilters;
+
+            myChart.data = dimple.filterData(data, "handedness", filterValues);
+			myChart1.data = dimple.filterData(data, "handedness", filterValues);
+
+            myChart.draw(700);
+            myChart1.draw(800);
+
+
+          });
+
+
+
+
+
+        };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv("baseball_data.csv", draw);
+  </script>
+</body>
+</html>
