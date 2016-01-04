@@ -5,7 +5,6 @@
   <script src="http://d3js.org/d3.v3.min.js"></script>
   <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
   
-  /* css styles go here ... I've only created a simple style for h2 header class */
   <style>
   	h2{
   		text-align: center;
@@ -14,17 +13,21 @@
 
   <script type="text/javascript">
       	function draw(data) {
-
+	// Leaving a pre-defined margin on the webpage
           "use strict";
           var margin = 75,
               width = 1280 - margin,
               height = 800 - margin;
-
+	
+	
+	//1. Creating the first chart - analysis of performance by Height of players
+	
+	// Setting the title
 	d3.select("body")
 		.append("h2")
 		.text("Baseball Player Performance by Height");
 
-
+	// Creating and appending an svg tag
         var svg = d3.select("body")
         	.append("svg")
               	.attr("width", width + margin)
@@ -32,79 +35,87 @@
             	.append('g')
                 .attr('class','chart');
 
-      /*
-        Dimple.js Chart construction code
-      */
-
+        // Creating a dimple chart object
         var myChart = new dimple.chart(svg, data);
-          
+        
+        //Setting up the X axis with the Average of players  
         var x = myChart.addMeasureAxis("x", "avg");
         x.tickFormat = "%";
         x.overrideMax = 0.32;
 	x.overrideMin = 0.2;
 	x.title = "Average of Baseball players";
         
+        //Setting up the Y axis with the Height of players
         var y1 = myChart.addMeasureAxis("y", "height");
         y1.overrideMax = 80;
         y1.overrideMin = 66;
 	y1.title = "Height of Baseball players";
-
+	
+	//Setting up the radii of bubbles with Home Runs
         var z = myChart.addMeasureAxis("z", "HR");
         
+        //Creating the bubble chart and the legend
         myChart.addSeries(["name", "handedness"], dimple.plot.bubble);
 	var myLegend = myChart.addLegend(280, 10, 380, 20, "left");
 	
 	myChart.draw();
 
-
-	/*
-	Mike Brown, Mel Stottlemyre and Jim Wright seem to have entered details in another metric scale
-
-	*/
-
-
+	//1. Creating the second chart - analysis of performance by Weight of players
+	
+	//Setting up the title
 	d3.select("body")
 		.append("h2")
 		.text("Baseball Player Performance by Weight");
 
-
+	//Creating an svg object
 	var svg1 = d3.select("body")
 		.append("svg")
 		.attr("width", width + margin)
 		.attr("height", height + margin)
 		.append('g')
                 .attr('class','chart');
-
+	
+	
+	//Initiating another chart object mychart1 with the new svg1
         var myChart1 = new dimple.chart(svg1, data);
 	
+	
+	//Setting up the X axis with the Average performance of players
 	var x = myChart1.addMeasureAxis("x", "avg");
 	x.tickFormat = "%";
 	x.overrideMax = 0.32;
 	x.overrideMin = 0.2;
 	x.title = "Average of Baseball players";
 	
+	//Setting up the Y axis with the Weight of the players
 	var y2 = myChart1.addMeasureAxis("y", "weight");
 	y2.overrideMax = 250;
 	y2.overrideMin = 140;
 	y2.title = "Weight of Baseball players";
 	
+	//Using HomeRuns to set the radii of the bubbles
 	var z = myChart1.addMeasureAxis("z", "HR");
 	
+	//Adding and drawing the bubble chart
 	myChart1.addSeries(["name", "handedness"], dimple.plot.bubble);
-
 
 	myChart1.draw();
 
-
+	
+	//3. The below set of codes created the animated filters from the legend
+	
 	myChart.legends = [];
-
+	
+	//Creating a list of unique values for handedness of players
 	var filterValues = dimple.getUniqueValues(data, "handedness");
-
+	
+	//Capturing the "Click" event of all rectangular shapes in the legend
 	myLegend.shapes.selectAll("rect")
 		.on("click", function (e) {
 			var hide = false;
             		var newFilters = [];
-
+			
+			//Check what value of handedness to hide based on what's clicked
             		filterValues.forEach(function (f) {
 				if (f === e.aggField.slice(-1)[0]) {
 					hide = true;
@@ -113,7 +124,7 @@
 				       }
             		});
 
-
+			//Set the opacity value based on clicked
             		if (hide) {
 			              d3.select(this).style("opacity", 0.2);
 			          }
@@ -121,22 +132,18 @@
 			              newFilters.push(e.aggField.slice(-1)[0]);
 			              d3.select(this).style("opacity", 0.8);
             			}
-
-
+			
+			//Filter data based on selection
             		filterValues = newFilters;
 
             		myChart.data = dimple.filterData(data, "handedness", filterValues);
 			myChart1.data = dimple.filterData(data, "handedness", filterValues);
-
+			
+			//re-draw charts based on filtered data
             		myChart.draw(700);
             		myChart1.draw(800);
 
-
           	});
-
-
-
-
 
         };
       </script>
@@ -144,10 +151,10 @@
 
 <body>
   <script type="text/javascript">
-  /*
-    Loading the data from the csv file and calling the draw function with the data
-    */
-  d3.csv("baseball_data.csv", draw);
+  	/*
+    		Loading the data from the csv file and calling the draw function with the data
+    	*/
+  	d3.csv("baseball_data.csv", draw);
   </script>
 </body>
 </html>
